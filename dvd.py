@@ -17,7 +17,7 @@ class DVD:
         process = subprocess.Popen(['setcd', '-i'],
                      stdout=subprocess.PIPE, 
                      stderr=subprocess.PIPE)
-        stdout, stderr = process.communicate()
+        stdout = process.communicate()[0]
 
         self.title = stdout.decode('utf-8').splitlines()[2][17:]
         self.publisher = stdout.decode('utf-8').splitlines()[3][15:]

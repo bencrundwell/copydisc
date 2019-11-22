@@ -25,13 +25,14 @@ def main():
 
     copydisc = Copydisc('/dev/ttyUSB0')
     # dvd = DVD()
-    dvdBackup = DVDBackup()
+    dvdBackup = DVDBackup('/mnt/nas/Ripped')
 
     copydisc.calibrate()
 
     dvdTitle = dvdBackup.getTitle()
     logger.info("Ripping: %s", dvdTitle)
-    dvdTitle = dvdBackup.ripDVD()
+    
+    dvdBackup.ripDVD()
 
 
 if __name__ == "__main__":

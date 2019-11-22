@@ -10,19 +10,24 @@ from logzero import logger
 from imdb import IMDb
 
 class DVDBackup:
-    def __init__(self):
+    RippingDestination = ''
+
+    def __init__(self, directory):
         logger.info("Starting DVDBackup Module")
         # create an instance of the IMDb class
         self.ia = IMDb()
         self.imdbTitle = ""
-        
+        self.RippingDestination = directory
+
+    def setRippingDestination(self, directory):
+        self.RippingDestination = directory
 
     def getTitle(self):
         process = subprocess.Popen(['dvdbackup', '-I'],
                      bufsize=-1,
                      stdout=subprocess.PIPE, 
                      stderr=subprocess.PIPE)
-        stdout, stderr = process.communicate()
+        stdout = process.communicate()[0]
 
         output = stdout.decode('utf-8')
         pattern = re.compile(r"\"(.*)\"")
@@ -40,30 +45,22 @@ class DVDBackup:
         return self.imdbTitle
 
     def ripDVD(self):
-        process = subprocess.Popen(['dvdbackup', '-F', '-v', '-o', '/mnt/nas/Ripped/'],
+        if self.RippingDestination == '':
+            logger.error("RippingDestination not set. Use DVDBackup.setRippingDestination()")
+            raise Exception
+
+        process = subprocess.Popen(['dvdbackup', '-F', '-o', self.RippingDestination, '-n', self.dvdTitle],
                      shell=False,
                      bufsize=1,
                      stdout=subprocess.PIPE, 
                      stderr=subprocess.PIPE)
 
         while True:
-            output = process.stdout.readline()
+            output = process.stderr.readline()
             if output == b'' and process.poll() is not None:
                 break
-            if output:
-                print (output.strip())
-        rc = process.poll()
+            # if output:
+            #     print (output.strip().decode('utf-8'))
 
-        # output = ''
-         # Poll process for new output until finished
-        # for line in iter(process.stdout.readline, b''):
-        #     print (line.decode("utf-8")),
-        #     output += line.decode("utf-8") 
-
-        # process.wait()
-        # exitCode = process.returncode
-
-        # print ("Output")
-        # print (output)
-        # print ("Finished")
+        logger.info("Finished Ripping DVD")
 
