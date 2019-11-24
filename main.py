@@ -10,7 +10,7 @@ __license__ = "MIT"
 import logzero
 
 from copydisc import Copydisc 
-from dvdbackup import DVDBackup 
+from handbrake import Handbrake 
 from logzero import logger
 
 # Setup rotating logfile with 3 rotations, each with a maximum filesize of 1MB:
@@ -25,14 +25,16 @@ def main():
 
     copydisc = Copydisc('/dev/ttyUSB0')
     # dvd = DVD()
-    dvdBackup = DVDBackup('/mnt/nas/Ripped')
+    handbrake = Handbrake('/mnt/nas/Movies')
 
-    copydisc.calibrate()
+    # copydisc.calibrate()
 
-    dvdTitle = dvdBackup.getTitle()
+    dvdTitle = handbrake.getTitle()
     logger.info("Ripping: %s", dvdTitle)
     
-    dvdBackup.ripDVD()
+    #handbrake.ripDVD()
+
+    #https://linuxsuperuser.com/easily-rip-dvds-in-linux-with-ffmpeg/
 
 
 if __name__ == "__main__":
