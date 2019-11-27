@@ -8,10 +8,13 @@ __version__ = "0.1.0"
 __license__ = "MIT"
 
 import logzero
+import time
+import sys
 
 from copydisc import Copydisc 
 from handbrake import Handbrake 
 from logzero import logger
+from dvd import DVD
 
 # Setup rotating logfile with 3 rotations, each with a maximum filesize of 1MB:
 logzero.logfile("logs/rotating-logfile.log", maxBytes=1e6, backupCount=3)
@@ -24,17 +27,35 @@ def main():
     # logger.info("var1: %s, var2: %s", var1, var2)
 
     copydisc = Copydisc('/dev/ttyUSB0')
-    # dvd = DVD()
+    dvd = DVD()
     handbrake = Handbrake('/mnt/nas/Movies')
 
-    # copydisc.calibrate()
+    copydisc.calibrate()
 
-    dvdTitle = handbrake.getTitle()
-    logger.info("Ripping: %s", dvdTitle)
-    
-    #handbrake.ripDVD()
+    # dvdTitle = handbrake.getTitle()
+    # logger.info("Ripping: %s", dvdTitle)
+    # handbrake.ripDVD()
 
-    #https://linuxsuperuser.com/easily-rip-dvds-in-linux-with-ffmpeg/
+    while True:
+        dvd.open()
+        try: 
+            copydisc.insert()
+        except:
+            logger.info("No Discs in Loader, finished")
+            sys.exit()
+
+        dvd.close()
+
+        time.sleep(10)
+
+        dvdTitle = handbrake.getTitle()
+        logger.info("Ripping: %s", dvdTitle)
+        
+        handbrake.ripDVD()
+
+        dvd.open()
+        time.sleep(5)
+        copydisc.accept()
 
 
 if __name__ == "__main__":

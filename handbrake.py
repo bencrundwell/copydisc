@@ -7,8 +7,10 @@ import re
 import glob, os
 
 
+
 from logzero import logger
 from imdb import IMDb
+from datetime import datetime
 
 #https://stackoverflow.com/questions/37925840/python-monitoring-progress-of-handbrake
 
@@ -26,6 +28,9 @@ class Handbrake:
         self.RippingDestination = directory
 
     def getTitle(self):
+        self.dvdTitle = ''
+        self.imdbTitle = ''
+
         process = subprocess.Popen(['dvdbackup', '-I'],
                      bufsize=-1,
                      stdout=subprocess.PIPE, 
@@ -39,6 +44,13 @@ class Handbrake:
         if results != None:     # Search for the pattern. If found,
             self.dvdTitle = output[results.regs[1][0] : results.regs[1][1]]
             logger.info("Read DVD: " + self.dvdTitle)
+
+        movies = self.ia.search_movie(self.dvdTitle)
+
+        if self.dvdTitle == 'Dvdvolume' or len(movies) == 0:
+            now = datetime.now() # current date and time
+            self.imdbTitle = now.strftime("%Y%m%d_%H%M%S")
+            return self.imdbTitle
 
         # get a movie
         movies = self.ia.search_movie(self.dvdTitle)
@@ -56,17 +68,20 @@ class Handbrake:
         # HandBrakeCLI -i /dev/dvd -o /mnt/nas/Ripped/Ratatouille.mp4
         # --audio-lang-list <string>
 
-        handbrakeCommand = "HandBrakeCLI"
-        handbrakeCommand += " -i /dev/dvd"
-        handbrakeCommand += " --audio-lang-list eng"
-        # handbrakeCommand += " --main-feature"
-        handbrakeCommand += " --markers"
-        handbrakeCommand += " -e x264 -q 20 -B 160"
-        handbrakeCommand += " -o " + self.RippingDestination + "/" + self.imdbTitle + ".mp4"
+        outputFilename = self.RippingDestination + "/" + self.imdbTitle + ".mp4"
+        outputFilename.replace(' ', '_')
+
+        handbrakeCommand = ["HandBrakeCLI", 
+        "-i", "/dev/dvd",
+        "--audio-lang-list", "eng",
+        "--main-feature",
+        "--markers",
+        "-e", "x264", "-q", "20", "-B", "160",
+        "-o", outputFilename]
 
         print (handbrakeCommand)
 
-        process = subprocess.Popen(handbrakeCommand.split(),
+        process = subprocess.Popen(handbrakeCommand,
                      shell=False,
                      bufsize=1,
                      stdout=subprocess.PIPE, 

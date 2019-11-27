@@ -31,3 +31,21 @@ class DVD:
 
         return self.imdbTitle
 
+    def open(self):
+        logger.info("Open DVD Tray")
+        process = subprocess.Popen(['eject', '/dev/sr0'])
+
+        while True:
+            if process.poll() is not None:
+                break
+
+    def close(self):
+        logger.info("Close DVD Tray")
+        process = subprocess.Popen(['eject', '/dev/sr0', '-t'])
+
+        while True:
+            if process.poll() is not None:
+                break
+
+
+
