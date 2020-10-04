@@ -68,6 +68,8 @@ class Handbrake:
         # HandBrakeCLI -i /dev/dvd -o /mnt/nas/Ripped/Ratatouille.mp4
         # --audio-lang-list <string>
 
+        # HandBrakeCLI -i /dev/dvd --audio-lang-list eng --main-feature --markers -e x264 -q 20 -B 160 -o /mnt/nas/Movies/test.mp4
+
         outputFilename = self.RippingDestination + "/" + self.imdbTitle + ".mp4"
         outputFilename.replace(' ', '_')
 

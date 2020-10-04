@@ -35,9 +35,10 @@ def main():
     # dvdTitle = handbrake.getTitle()
     # logger.info("Ripping: %s", dvdTitle)
     # handbrake.ripDVD()
+    
+    dvd.open()
 
     while True:
-        dvd.open()
         try: 
             copydisc.insert()
         except:
@@ -46,13 +47,14 @@ def main():
 
         dvd.close()
 
-        time.sleep(10)
+        time.sleep(20)
 
         dvdTitle = handbrake.getTitle()
         logger.info("Ripping: %s", dvdTitle)
         
         handbrake.ripDVD()
 
+        time.sleep(10)
         dvd.open()
         time.sleep(5)
         copydisc.accept()
